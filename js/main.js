@@ -3,7 +3,7 @@
 var TYPE = ['palace', 'flat', 'house', 'bungalo'];
 var CHECKIN = ['12:00', '13:00', '14:00'];
 var CHECKOUT = ['12:00', '13:00', '14:00'];
-var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
+var FEATURES = [' wifi', ' dishwasher', ' parking', ' washer', ' elevator', ' conditioner'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var pins = [];
 var COUNT = 8;
@@ -28,6 +28,18 @@ var getRandom = function (min, max) {
 var getAvatar = function (index) {
   var photoIndex = index + 1;
   return 'img/avatars/user0' + photoIndex + '.png';
+};
+
+var getType = function () {
+  var type = TYPE[getRandom(0, TYPE.length - 1)];
+  if (type === 'palace') {
+    return 'Дворец';
+  } else if (type === 'flat') {
+    return 'Квартира';
+  } else if (type === 'house') {
+    return 'Дом';
+  }
+  return 'Бунгало';
 };
 
 var getRandomArray = function (arr) {
@@ -71,6 +83,8 @@ var getRandomPins = function (max) {
   return pins;
 };
 
+getRandomPins(COUNT);
+
 var getPinElement = function (max) {
   var pinHalfWidth = 23;
   var pinHeight = 64;
@@ -84,15 +98,54 @@ var getPinElement = function (max) {
   return fragment;
 };
 
+var similarCardTemplate = document.querySelector('#card')
+  .content
+  .querySelector('.map__card');
+
+var getCardElement = function (max) {
+  for (var i = 0; i < max; i++) {
+    var cardElement = similarCardTemplate.cloneNode(true);
+    cardElement.querySelector('.popup__title').textContent = pins[i].offer.title;
+    cardElement.querySelector('.popup__text--address').textContent = pins[i].offer.address;
+    cardElement.querySelector('.popup__text--price').textContent = pins[i].offer.price + ' ₽/ночь';
+    cardElement.querySelector('.popup__type').textContent = getType();
+    cardElement.querySelector('.popup__text--capacity').textContent = pins[i].offer.rooms + ' комнаты для ' + pins[i].offer.guests + ' гостей';
+    cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + pins[i].offer.checkin + ' выезд до' + pins[i].offer.checkout;
+    cardElement.querySelector('.popup__features').textContent = pins[i].offer.features;
+    cardElement.querySelector('.popup__description').textContent = pins[i].offer.description;
+
+    var photoArray = pins[i].offer.photos;
+    var photosLength = pins[i].offer.photos.length;
+
+    for (var r = 0; r < photosLength - 1; r++) {
+      var photoImage = cardElement.querySelector('.popup__photo');
+      cardElement.querySelector('.popup__photos').appendChild(photoImage.cloneNode(true));
+    }
+
+    for (var d = 0; d < photosLength; d++) {
+      var allPhotoImages = cardElement.querySelectorAll('.popup__photo');
+      allPhotoImages[d].setAttribute('src', photoArray[d]);
+    }
+
+    cardElement.querySelector('.popup__avatar').setAttribute('src', pins[i].author.avatar);
+    cardFragment.appendChild(cardElement);
+  }
+  return cardFragment;
+};
+
+var fragment = document.createDocumentFragment();
+var cardFragment = document.createDocumentFragment();
 var pinListElement = document.querySelector('.map__pins');
+var map = document.querySelector('.map');
+var mapFiltersContainer = document.querySelector('.map__filters-container');
+
 var similarPinTemplate = document.querySelector('#pin')
   .content
   .querySelector('.map__pin');
 
-var fragment = document.createDocumentFragment();
-
-getRandomPins(COUNT);
 getPinElement(COUNT);
+getCardElement(COUNT);
+
 pinListElement.appendChild(fragment);
 
-
+map.insertBefore(cardFragment, mapFiltersContainer);
