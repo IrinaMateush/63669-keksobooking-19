@@ -21,6 +21,7 @@ var MAX_X = 1200;
 var mapElement = document.querySelector('.map');
 mapElement.classList.remove('map--faded');
 
+/*
 var getRandom = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -41,6 +42,7 @@ var getType = function () {
   }
   return 'Бунгало';
 };
+*/
 
 var getRandomArray = function (arr) {
   var features = [];
@@ -85,14 +87,17 @@ var getRandomPins = function (max) {
 
 var pins = getRandomPins(COUNT);
 
+// console.log(pins);
+
 var getPinElement = function (pinsArr) {
   var pinHalfWidth = 23;
   var pinHeight = 64;
-  for (var i = 0; i < pinsArr.length; i++) {
+
+  for (var i = 0; i < pinsArr.length - 1; i++) {
     var pinElement = similarPinTemplate.cloneNode(true);
-    pinElement.setAttribute('style', 'left:' + (pins[i].location.x - pinHalfWidth) + 'px; top:' + (pins[i].location.y - pinHeight) + 'px;');
-    pinElement.querySelector('img').setAttribute('src', pins[i].author.avatar);
-    pinElement.querySelector('img').setAttribute('alt', pins[i].offer.title);
+    pinElement.setAttribute('style', 'left:' + (pinsArr[i].location.x - pinHalfWidth) + 'px; top:' + (pinsArr[i].location.y - pinHeight) + 'px;');
+    pinElement.querySelector('img').setAttribute('src', pinsArr[i].author.avatar);
+    pinElement.querySelector('img').setAttribute('alt', pinsArr[i].offer.title);
     fragment.appendChild(pinElement);
   }
   return fragment;
@@ -101,6 +106,20 @@ var getPinElement = function (pinsArr) {
 var similarCardTemplate = document.querySelector('#card')
   .content
   .querySelector('.map__card');
+
+
+// есть 8 пинов. Для каждого пина -> пина
+
+// function openCard(pinObject) {
+// cardElement.querySelector('.popup__title').textContent = pinObject.offer.title;
+// cardElement.querySelector('.popup__text--address').textContent = pinObject.offer.address;
+// }
+
+// var mapElement = document.querySelector('map');
+// mapElement.addEventListener('click', function (evt) {
+//   var target = evt.target.parentE;
+// });
+
 
 var getCardElement = function (max) {
   for (var i = 0; i < max; i++) {
@@ -133,6 +152,8 @@ var getCardElement = function (max) {
   return cardFragment;
 };
 
+getCardElement(pins[1]);
+
 var fragment = document.createDocumentFragment();
 var cardFragment = document.createDocumentFragment();
 var pinListElement = document.querySelector('.map__pins');
@@ -144,8 +165,7 @@ var similarPinTemplate = document.querySelector('#pin')
   .querySelector('.map__pin');
 
 getPinElement(pins);
-
-var cards = getCardElement(COUNT);
+getCardElement(COUNT);
 
 pinListElement.appendChild(fragment);
 
