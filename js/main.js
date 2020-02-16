@@ -18,8 +18,11 @@ var MAX_Y = 630;
 var MIN_X = 0;
 var MAX_X = 1200;
 
-var mapElement = document.querySelector('.map');
-mapElement.classList.remove('map--faded');
+var pinListElement = document.querySelector('.map__pins');
+var map = document.querySelector('.map');
+var mapFiltersContainer = document.querySelector('.map__filters-container');
+
+map.classList.remove('map--faded');
 
 var getRandom = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -30,12 +33,30 @@ var getAvatar = function (index) {
   return 'img/avatars/user0' + photoIndex + '.png';
 };
 
+var getType = function () {
+  var type = TYPE[getRandom(0, TYPE.length - 1)];
+  switch (type) {
+    case 'palace':
+      type = 'Дворец';
+      break;
+    case 'flat':
+      type = 'Квартира';
+      break;
+    case 'house':
+      type = 'Дом';
+      break;
+    default:
+      type = 'Бунгало';
+  }
+  return type;
+};
+
 var getRandomArray = function (arr) {
   var features = [];
-  var max = getRandom(1, arr.length - 1);
+  var max = getRandom(1, arr.length);
   arr.sort();
   for (var i = 0; i < max; i++) {
-    features.push(arr[i]);
+    features.push(' ' + arr[i]);
   }
   return features;
 };
@@ -71,10 +92,28 @@ var getRandomPins = function (max) {
   return pins;
 };
 
-var getPinElement = function (max) {
+var getPhotos = function (photoArr, cartsArr) {
+  var photostest = cartsArr.querySelector('.popup__photos');
+  var photoImage = cartsArr.querySelector('.popup__photo');
+
+  for (var i = 0; i < photoArr.length; i++) {
+    var photos = photoArr[i].offer.photos;
+  }
+  var photosLength = photos.length;
+  for (var j = 0; j < photosLength - 1; j++) {
+    photostest.appendChild(photoImage.cloneNode(true));
+  }
+  var allPhotoImages = photostest.querySelectorAll('.popup__photo');
+  for (var k = 0; k < photosLength; k++) {
+    allPhotoImages[k].setAttribute('src', photos[k]);
+  }
+  return allPhotoImages;
+};
+
+var getPinElement = function (pinsArr) {
   var pinHalfWidth = 23;
   var pinHeight = 64;
-  for (var i = 0; i < max; i++) {
+  for (var i = 0; i < pinsArr.length; i++) {
     var pinElement = similarPinTemplate.cloneNode(true);
     pinElement.setAttribute('style', 'left:' + (pins[i].location.x - pinHalfWidth) + 'px; top:' + (pins[i].location.y - pinHeight) + 'px;');
     pinElement.querySelector('img').setAttribute('src', pins[i].author.avatar);
@@ -84,15 +123,40 @@ var getPinElement = function (max) {
   return fragment;
 };
 
-var pinListElement = document.querySelector('.map__pins');
+var getCardElement = function (max) {
+  for (var i = 0; i < max; i++) {
+    cardElement.querySelector('.popup__title').textContent = pins[i].offer.title;
+    cardElement.querySelector('.popup__text--address').textContent = pins[i].offer.address;
+    cardElement.querySelector('.popup__text--price').textContent = pins[i].offer.price + ' ₽/ночь';
+    cardElement.querySelector('.popup__type').textContent = getType();
+    cardElement.querySelector('.popup__text--capacity').textContent = pins[i].offer.rooms + ' комнаты для ' + pins[i].offer.guests + ' гостей';
+    cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + pins[i].offer.checkin + ' выезд до' + pins[i].offer.checkout;
+    cardElement.querySelector('.popup__features').textContent = pins[i].offer.features;
+    cardElement.querySelector('.popup__description').textContent = pins[i].offer.description;
+    cardElement.querySelector('.popup__avatar').setAttribute('src', pins[i].author.avatar);
+    cardFragment.appendChild(cardElement);
+  }
+  return cardFragment;
+};
+
+var similarCardTemplate = document.querySelector('#card')
+  .content
+  .querySelector('.map__card');
+var cardElement = similarCardTemplate.cloneNode(true);
+
 var similarPinTemplate = document.querySelector('#pin')
   .content
   .querySelector('.map__pin');
 
 var fragment = document.createDocumentFragment();
+var cardFragment = document.createDocumentFragment();
 
-getRandomPins(COUNT);
-getPinElement(COUNT);
+var pinElements = getRandomPins(COUNT);
+getPinElement(pins);
+
+getCardElement(COUNT);
+
+getPhotos(pinElements, cardElement);
 pinListElement.appendChild(fragment);
 
-
+map.insertBefore(cardFragment, mapFiltersContainer);
