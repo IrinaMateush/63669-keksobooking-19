@@ -5,7 +5,6 @@ var CHECKIN = ['12:00', '13:00', '14:00'];
 var CHECKOUT = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
-var pins = [];
 var COUNT = 8;
 var MIN_COST = 1500;
 var MAX_COST = 30000;
@@ -62,6 +61,7 @@ var getRandomArray = function (arr) {
 };
 
 var getRandomPins = function (max) {
+  var pins = [];
   for (var i = 0; i < max; i++) {
     var x = getRandom(MIN_X, MAX_X);
     var y = getRandom(MIN_Y, MAX_Y);
@@ -115,27 +115,25 @@ var getPinElement = function (pinsArr) {
   var pinHeight = 64;
   for (var i = 0; i < pinsArr.length; i++) {
     var pinElement = similarPinTemplate.cloneNode(true);
-    pinElement.setAttribute('style', 'left:' + (pins[i].location.x - pinHalfWidth) + 'px; top:' + (pins[i].location.y - pinHeight) + 'px;');
-    pinElement.querySelector('img').setAttribute('src', pins[i].author.avatar);
-    pinElement.querySelector('img').setAttribute('alt', pins[i].offer.title);
+    pinElement.setAttribute('style', 'left:' + (pinsArr[i].location.x - pinHalfWidth) + 'px; top:' + (pinsArr[i].location.y - pinHeight) + 'px;');
+    pinElement.querySelector('img').setAttribute('src', pinsArr[i].author.avatar);
+    pinElement.querySelector('img').setAttribute('alt', pinsArr[i].offer.title);
     fragment.appendChild(pinElement);
   }
   return fragment;
 };
 
-var getCardElement = function (max) {
-  for (var i = 0; i < max; i++) {
-    cardElement.querySelector('.popup__title').textContent = pins[i].offer.title;
-    cardElement.querySelector('.popup__text--address').textContent = pins[i].offer.address;
-    cardElement.querySelector('.popup__text--price').textContent = pins[i].offer.price + ' ₽/ночь';
-    cardElement.querySelector('.popup__type').textContent = getType();
-    cardElement.querySelector('.popup__text--capacity').textContent = pins[i].offer.rooms + ' комнаты для ' + pins[i].offer.guests + ' гостей';
-    cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + pins[i].offer.checkin + ' выезд до' + pins[i].offer.checkout;
-    cardElement.querySelector('.popup__features').textContent = pins[i].offer.features;
-    cardElement.querySelector('.popup__description').textContent = pins[i].offer.description;
-    cardElement.querySelector('.popup__avatar').setAttribute('src', pins[i].author.avatar);
-    cardFragment.appendChild(cardElement);
-  }
+var getCardElement = function (pin) {
+  cardElement.querySelector('.popup__title').textContent = pin.offer.title;
+  cardElement.querySelector('.popup__text--address').textContent = pin.offer.address;
+  cardElement.querySelector('.popup__text--price').textContent = pin.offer.price + ' ₽/ночь';
+  cardElement.querySelector('.popup__type').textContent = getType();
+  cardElement.querySelector('.popup__text--capacity').textContent = pin.offer.rooms + ' комнаты для ' + pin.offer.guests + ' гостей';
+  cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + pin.offer.checkin + ' выезд до' + pin.offer.checkout;
+  cardElement.querySelector('.popup__features').textContent = pin.offer.features;
+  cardElement.querySelector('.popup__description').textContent = pin.offer.description;
+  cardElement.querySelector('.popup__avatar').setAttribute('src', pin.author.avatar);
+  cardFragment.appendChild(cardElement);
   return cardFragment;
 };
 
@@ -151,12 +149,13 @@ var similarPinTemplate = document.querySelector('#pin')
 var fragment = document.createDocumentFragment();
 var cardFragment = document.createDocumentFragment();
 
-var pinElements = getRandomPins(COUNT);
-getPinElement(pins);
+var pinsObject = getRandomPins(COUNT);
 
-getCardElement(COUNT);
+getPinElement(pinsObject);
 
-getPhotos(pinElements, cardElement);
+getCardElement(pinsObject[0]);
+
+getPhotos(pinsObject, cardElement);
+
 pinListElement.appendChild(fragment);
-
 map.insertBefore(cardFragment, mapFiltersContainer);
