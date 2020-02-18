@@ -16,12 +16,13 @@ var MIN_Y = 130;
 var MAX_Y = 630;
 var MIN_X = 0;
 var MAX_X = 1200;
+var LEFT_MOUSE_KEY = 0;
+var ENTER_KEY = 'Enter';
+var PIN_TAIL_HEIGHT = 22;
 
 var pinListElement = document.querySelector('.map__pins');
 var map = document.querySelector('.map');
 var mapFiltersContainer = document.querySelector('.map__filters-container');
-
-map.classList.remove('map--faded');
 
 var getRandom = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -157,5 +158,125 @@ getCardElement(pinsObject[0]);
 
 getPhotos(pinsObject, cardElement);
 
-pinListElement.appendChild(fragment);
-map.insertBefore(cardFragment, mapFiltersContainer);
+var pinMain = document.querySelector('.map__pin--main');
+var filterForm = document.querySelector('.map__filters');
+var filterFormFields = filterForm.children;
+var noticeForm = document.querySelector('.ad-form');
+var noticeFormFields = noticeForm.children;
+var addressInput = document.querySelector('#address');
+
+noticeForm.setAttribute('action', 'https://js.dump.academy/keksobooking');
+
+pinMain.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+  if (evt.button === LEFT_MOUSE_KEY) {
+    getMapOpen();
+  }
+});
+
+pinMain.addEventListener('keydown', function (evt) {
+  if (evt.key === ENTER_KEY) {
+    getMapOpen();
+  }
+});
+
+var getMapOpen = function () {
+  map.classList.remove('map--faded');
+  noticeForm.classList.remove('ad-form--disabled');
+  pinListElement.appendChild(fragment);
+  formActive(filterFormFields);
+  formActive(noticeFormFields);
+  getPinAddress(pinMain, true);
+  map.insertBefore(cardFragment, mapFiltersContainer);
+};
+
+var getPinAddress = function (pin, formState) {
+  var pinX = pin.getBoundingClientRect().x;
+  var pinY = pin.getBoundingClientRect().y;
+  var pinWidth = pin.getBoundingClientRect().width;
+  var pinHeihgt = pin.getBoundingClientRect().height;
+
+  var centerPinX = Math.floor(pinX + pinWidth / 2);
+  var centerPinY = Math.floor(pinY + pinWidth / 2);
+
+  var pinTailX = centerPinX;
+  var pinTailY = Math.floor(pinY + pinHeihgt + PIN_TAIL_HEIGHT);
+
+  var addressDefault = centerPinX + ', ' + centerPinY;
+  var address = pinTailX + ', ' + pinTailY;
+
+  if (!formState) {
+    addressInput.setAttribute('value', addressDefault);
+  } else {
+    addressInput.setAttribute('value', address);
+  }
+};
+
+var formDidabled = function (fields) {
+  for (var i = 0; i < fields.length; i++) {
+    fields[i].setAttribute('disabled', 'disabled');
+  }
+};
+
+var formActive = function (fields) {
+  for (var i = 0; i < fields.length; i++) {
+    fields[i].removeAttribute('disabled', 'disabled');
+  }
+};
+
+formDidabled(filterFormFields);
+formDidabled(noticeFormFields);
+getPinAddress(pinMain, false);
+
+var titleInput = document.querySelector('#title');
+var price = document.querySelector('#price');
+
+var roomNumber = document.querySelector('#room_number');
+var roomNumberSelected = roomNumber.querySelector('option[selected]');
+var roomNumberValue = roomNumberSelected.getAttribute('value');
+
+var capacity = document.querySelector('#capacity');
+var capacitySelected = capacity.querySelector('option[selected]');
+var capacityValue = capacitySelected.getAttribute('value');
+
+roomNumber.addEventListener('change', function (evt) {
+  roomNumberValue = roomNumber.value;
+  var target = evt.target.value;
+  if (target < capacityValue) {
+    roomNumber.setCustomValidity('Выбранный номер не вместит всех гостей');
+  }
+});
+
+capacity.addEventListener('change', function (evt) {
+  capacityValue = capacity.value;
+  var target = evt.target.value;
+  if (target > roomNumberValue) {
+    capacity.setCustomValidity('Гостей больше, чем мест в номере');
+  }
+});
+
+titleInput.setAttribute('required', 'required');
+titleInput.setAttribute('minlength', '30');
+titleInput.setAttribute('maxlength', '100');
+
+price.setAttribute('required', 'required');
+price.setAttribute('max', '1000000');
+price.setAttribute('pattern', '[0-9]');
+
+titleInput.addEventListener('invalid', function () {
+  if (titleInput.validity.valueMissing) {
+    titleInput.setCustomValidity('Заголовок - обязательное поле');
+  } else if (titleInput.validity.tooShort) {
+    titleInput.setCustomValidity('Заголовок должен состоять минимум из 30 символов');
+  } else if (titleInput.validity.tooLong) {
+    titleInput.setCustomValidity('Заголовок должен состоять максимум из 100 символов');
+  }
+});
+
+price.addEventListener('invalid', function () {
+  if (price.validity.valueMissing) {
+    price.setCustomValidity('Цена - обязательное поле');
+  } else if (price.validity.rangeOverflow) {
+    price.setCustomValidity('Стоимость не может превышать 1 000 000');
+  }
+});
