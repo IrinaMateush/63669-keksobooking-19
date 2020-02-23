@@ -170,24 +170,25 @@ noticeForm.setAttribute('action', 'https://js.dump.academy/keksobooking');
 pinMain.addEventListener('mousedown', function (evt) {
   evt.preventDefault();
   if (evt.button === LEFT_MOUSE_KEY) {
-    getMapOpen();
+    activateMap();
   }
 });
 
 pinMain.addEventListener('keydown', function (evt) {
   if (evt.key === ENTER_KEY) {
-    getMapOpen();
+    activateMap();
   }
 });
 
-var getMapOpen = function () {
+var activateMap = function () {
   map.classList.remove('map--faded');
   noticeForm.classList.remove('ad-form--disabled');
   pinListElement.appendChild(fragment);
-  formActive(filterFormFields);
-  formActive(noticeFormFields);
+  removeDisabledForm(filterFormFields);
+  removeDisabledForm(noticeFormFields);
   getPinAddress(pinMain, true);
   map.insertBefore(cardFragment, mapFiltersContainer);
+  getRoomsAvailability();
 };
 
 var getPinAddress = function (pin, formState) {
@@ -212,48 +213,63 @@ var getPinAddress = function (pin, formState) {
   }
 };
 
-var formDidabled = function (fields) {
+var setDisabledForm = function (fields) {
   for (var i = 0; i < fields.length; i++) {
     fields[i].setAttribute('disabled', 'disabled');
   }
 };
 
-var formActive = function (fields) {
+var removeDisabledForm = function (fields) {
   for (var i = 0; i < fields.length; i++) {
     fields[i].removeAttribute('disabled', 'disabled');
   }
 };
 
-formDidabled(filterFormFields);
-formDidabled(noticeFormFields);
+setDisabledForm(filterFormFields);
+setDisabledForm(noticeFormFields);
 getPinAddress(pinMain, false);
 
 var titleInput = document.querySelector('#title');
 var price = document.querySelector('#price');
 
 var roomNumber = document.querySelector('#room_number');
+var roomOptions = roomNumber.querySelectorAll('option');
 var roomNumberSelected = roomNumber.querySelector('option[selected]');
 var roomNumberValue = roomNumberSelected.getAttribute('value');
 
 var capacity = document.querySelector('#capacity');
+var capacityOptions = capacity.querySelectorAll('option');
 var capacitySelected = capacity.querySelector('option[selected]');
 var capacityValue = capacitySelected.getAttribute('value');
 
-roomNumber.addEventListener('change', function (evt) {
-  roomNumberValue = roomNumber.value;
-  var target = evt.target.value;
-  if (target < capacityValue) {
+var getRoomsAvailability = function () {
+  if (Number(roomNumberValue) < Number(capacityValue)) {
     roomNumber.setCustomValidity('Выбранный номер не вместит всех гостей');
   }
-});
-
-capacity.addEventListener('change', function (evt) {
-  capacityValue = capacity.value;
-  var target = evt.target.value;
-  if (target > roomNumberValue) {
+  if (Number(capacityValue) > Number(roomNumberValue)) {
     capacity.setCustomValidity('Гостей больше, чем мест в номере');
   }
-});
+
+  roomNumber.addEventListener('change', function (evt) {
+    var target = evt.target.value;
+    for (var i = 0; i < capacityOptions.length; i++) {
+      capacityOptions[i].removeAttribute('disabled', 'disabled');
+      if (Number(capacityOptions[i].value) > Number(target)) {
+        capacityOptions[i].setAttribute('disabled', 'disabled');
+      }
+    }
+  });
+
+  capacity.addEventListener('change', function (evt) {
+    var target = evt.target.value;
+    for (var i = 0; i < roomOptions.length; i++) {
+      roomOptions[i].removeAttribute('disabled', 'disabled');
+      if (Number(roomOptions[i].value) < Number(target)) {
+        roomOptions[i].setAttribute('disabled', 'disabled');
+      }
+    }
+  });
+};
 
 titleInput.setAttribute('required', 'required');
 titleInput.setAttribute('minlength', '30');
