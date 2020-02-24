@@ -18,6 +18,7 @@ var MIN_X = 0;
 var MAX_X = 1200;
 var LEFT_MOUSE_KEY = 0;
 var ENTER_KEY = 'Enter';
+var ESC_KEY = 'Escape';
 var PIN_TAIL_HEIGHT = 22;
 
 var pinListElement = document.querySelector('.map__pins');
@@ -187,8 +188,12 @@ var activateMap = function () {
   removeDisabledForm(filterFormFields);
   removeDisabledForm(noticeFormFields);
   getPinAddress(pinMain, true);
-  map.insertBefore(cardFragment, mapFiltersContainer);
   getRoomsAvailability();
+
+  var pins = document.querySelectorAll('.map__pin');
+  for (var i = 0; i < pins.length; i++) {
+    pins[i].setAttribute('tabindex', '0');
+  }
 };
 
 var getPinAddress = function (pin, formState) {
@@ -294,5 +299,52 @@ price.addEventListener('invalid', function () {
     price.setCustomValidity('Цена - обязательное поле');
   } else if (price.validity.rangeOverflow) {
     price.setCustomValidity('Стоимость не может превышать 1 000 000');
+  }
+});
+
+pinMain.addEventListener('click', function (evt) {
+  evt.stopImmediatePropagation();
+});
+
+var openCard = function (evt) {
+  if (evt.target) {
+    var pinsAvatar = evt.target.getAttribute('src');
+    for (var i = 0; i < pinsObject.length; i++) {
+      var cardsAvatar = pinsObject[i].author.avatar;
+      if (pinsAvatar === cardsAvatar) {
+        getCardElement(pinsObject[i]);
+        map.insertBefore(cardFragment, mapFiltersContainer);
+
+        var popupClose = document.querySelector('.popup__close');
+        var popup = document.querySelector('.popup');
+        popupClose.setAttribute('tabindex', '0');
+
+        popupClose.addEventListener('click', function () {
+          popup.remove();
+        });
+
+        popupClose.addEventListener('keydown', function () {
+          if (evt.key === ENTER_KEY) {
+            popup.remove();
+          }
+        });
+
+        document.addEventListener('keydown', function (close) {
+          if (close.key === ESC_KEY) {
+            popup.remove();
+          }
+        });
+      }
+    }
+  }
+};
+
+pinListElement.addEventListener('click', function (evt) {
+  openCard(evt);
+});
+
+pinListElement.addEventListener('keydown', function (evt) {
+  if (evt.key === ENTER_KEY) {
+    openCard(evt);
   }
 });
