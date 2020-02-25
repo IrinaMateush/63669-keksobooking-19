@@ -247,12 +247,25 @@ price.setAttribute('placeholder', minPrice);
 
 var roomNumber = document.querySelector('#room_number');
 var roomOptions = roomNumber.querySelectorAll('option');
+var roomNumberSelected = roomNumber.querySelector('option[selected]');
+var roomNumberValue = roomNumberSelected.getAttribute('value');
 
 var capacity = document.querySelector('#capacity');
 var capacityOptions = capacity.querySelectorAll('option');
+var capacitySelected = capacity.querySelector('option[selected]');
+var capacityValue = capacitySelected.getAttribute('value');
 
 var getRoomsAvailability = function () {
+
+  if (Number(roomNumberValue) < Number(capacityValue)) {
+    roomNumber.setCustomValidity('Выбранный номер не вместит всех гостей');
+  }
+  if (Number(capacityValue) > Number(roomNumberValue)) {
+    capacity.setCustomValidity('Гостей больше, чем мест в номере');
+  }
+
   roomNumber.addEventListener('change', function (evt) {
+    roomNumber.setCustomValidity('');
     var target = evt.target.value;
     for (var i = 0; i < capacityOptions.length; i++) {
       capacityOptions[i].removeAttribute('disabled', 'disabled');
@@ -264,6 +277,7 @@ var getRoomsAvailability = function () {
   });
 
   capacity.addEventListener('change', function (evt) {
+    capacity.setCustomValidity('');
     var target = evt.target.value;
     for (var i = 0; i < roomOptions.length; i++) {
       roomOptions[i].removeAttribute('disabled', 'disabled');
