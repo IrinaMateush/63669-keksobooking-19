@@ -25,6 +25,10 @@ var pinListElement = document.querySelector('.map__pins');
 var map = document.querySelector('.map');
 var mapFiltersContainer = document.querySelector('.map__filters-container');
 
+var avatarFile = document.querySelector('.ad-form-header__input');
+var imagesFile = document.querySelector('.ad-form__input');
+var minPrice = 1000;
+
 var getRandom = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -166,6 +170,8 @@ var noticeForm = document.querySelector('.ad-form');
 var noticeFormFields = noticeForm.children;
 var addressInput = document.querySelector('#address');
 
+addressInput.setAttribute('readonly', 'readonly');
+
 noticeForm.setAttribute('action', 'https://js.dump.academy/keksobooking');
 
 pinMain.addEventListener('mousedown', function (evt) {
@@ -236,31 +242,23 @@ getPinAddress(pinMain, false);
 
 var titleInput = document.querySelector('#title');
 var price = document.querySelector('#price');
+price.setAttribute('min', minPrice);
+price.setAttribute('placeholder', minPrice);
 
 var roomNumber = document.querySelector('#room_number');
 var roomOptions = roomNumber.querySelectorAll('option');
-var roomNumberSelected = roomNumber.querySelector('option[selected]');
-var roomNumberValue = roomNumberSelected.getAttribute('value');
 
 var capacity = document.querySelector('#capacity');
 var capacityOptions = capacity.querySelectorAll('option');
-var capacitySelected = capacity.querySelector('option[selected]');
-var capacityValue = capacitySelected.getAttribute('value');
 
 var getRoomsAvailability = function () {
-  if (Number(roomNumberValue) < Number(capacityValue)) {
-    roomNumber.setCustomValidity('Выбранный номер не вместит всех гостей');
-  }
-  if (Number(capacityValue) > Number(roomNumberValue)) {
-    capacity.setCustomValidity('Гостей больше, чем мест в номере');
-  }
-
   roomNumber.addEventListener('change', function (evt) {
     var target = evt.target.value;
     for (var i = 0; i < capacityOptions.length; i++) {
       capacityOptions[i].removeAttribute('disabled', 'disabled');
       if (Number(capacityOptions[i].value) > Number(target)) {
         capacityOptions[i].setAttribute('disabled', 'disabled');
+        capacity.setCustomValidity('Гостей больше, чем мест в номере');
       }
     }
   });
@@ -271,10 +269,60 @@ var getRoomsAvailability = function () {
       roomOptions[i].removeAttribute('disabled', 'disabled');
       if (Number(roomOptions[i].value) < Number(target)) {
         roomOptions[i].setAttribute('disabled', 'disabled');
+        roomNumber.setCustomValidity('Выбранный номер не вместит всех гостей');
       }
     }
   });
 };
+
+var timein = document.querySelector('#timein');
+var timeinOptions = timein.querySelectorAll('option');
+var timeout = document.querySelector('#timeout');
+var timeoutOptions = timeout.querySelectorAll('option');
+var housingType = document.querySelector('#type');
+
+timein.addEventListener('change', function (evt) {
+  var target = evt.target.value;
+  for (var i = 0; i < timein.length; i++) {
+    if (timeoutOptions[i].value === target) {
+      timeoutOptions[i].setAttribute('selected', 'selected');
+    }
+  }
+});
+
+timeout.addEventListener('change', function (evt) {
+  var target = evt.target.value;
+  for (var i = 0; i < timeout.length; i++) {
+    if (timeinOptions[i].value === target) {
+      timeinOptions[i].setAttribute('selected', 'selected');
+    }
+  }
+});
+
+housingType.addEventListener('change', function (evt) {
+  var target = evt.target.value;
+  switch (target) {
+    case 'palace':
+      minPrice = 10000;
+      break;
+    case 'flat':
+      minPrice = 1000;
+      break;
+    case 'house':
+      minPrice = 5000;
+      break;
+    default:
+      minPrice = 0;
+  }
+  price.setAttribute('min', minPrice);
+  price.setAttribute('placeholder', minPrice);
+});
+
+price.setAttribute('min', minPrice);
+price.setAttribute('placeholder', minPrice);
+
+avatarFile.setAttribute('accept', 'image/*');
+imagesFile.setAttribute('accept', 'image/*');
 
 titleInput.setAttribute('required', 'required');
 titleInput.setAttribute('minlength', '30');
@@ -299,6 +347,8 @@ price.addEventListener('invalid', function () {
     price.setCustomValidity('Цена - обязательное поле');
   } else if (price.validity.rangeOverflow) {
     price.setCustomValidity('Стоимость не может превышать 1 000 000');
+  } else if (price.validity.rangeUnderflow) {
+    price.setCustomValidity('Минимальная стоимость: ' + minPrice);
   }
 });
 
