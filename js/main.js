@@ -387,8 +387,8 @@ pinListElement.addEventListener('click', function (evt) {
 });
 
 pinListElement.addEventListener('keydown', function (evt) {
-  var pinsAvatar = evt.target.firstChild.getAttribute('src');
   if (evt.key === ENTER_KEY) {
+    var pinsAvatar = evt.target.firstChild.getAttribute('src');
     openCard(evt, pinsAvatar);
   }
 });
