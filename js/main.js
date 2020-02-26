@@ -25,8 +25,6 @@ var pinListElement = document.querySelector('.map__pins');
 var map = document.querySelector('.map');
 var mapFiltersContainer = document.querySelector('.map__filters-container');
 
-var avatarFile = document.querySelector('.ad-form-header__input');
-var imagesFile = document.querySelector('.ad-form__input');
 var minPrice = 1000;
 
 var getRandom = function (min, max) {
@@ -170,8 +168,6 @@ var noticeForm = document.querySelector('.ad-form');
 var noticeFormFields = noticeForm.children;
 var addressInput = document.querySelector('#address');
 
-addressInput.setAttribute('readonly', 'readonly');
-
 noticeForm.setAttribute('action', 'https://js.dump.academy/keksobooking');
 
 pinMain.addEventListener('mousedown', function (evt) {
@@ -195,11 +191,6 @@ var activateMap = function () {
   removeDisabledForm(noticeFormFields);
   getPinAddress(pinMain, true);
   getRoomsAvailability();
-
-  var pins = document.querySelectorAll('.map__pin');
-  for (var i = 0; i < pins.length; i++) {
-    pins[i].setAttribute('tabindex', '0');
-  }
 };
 
 var getPinAddress = function (pin, formState) {
@@ -335,17 +326,6 @@ housingType.addEventListener('change', function (evt) {
 price.setAttribute('min', minPrice);
 price.setAttribute('placeholder', minPrice);
 
-avatarFile.setAttribute('accept', 'image/*');
-imagesFile.setAttribute('accept', 'image/*');
-
-titleInput.setAttribute('required', 'required');
-titleInput.setAttribute('minlength', '30');
-titleInput.setAttribute('maxlength', '100');
-
-price.setAttribute('required', 'required');
-price.setAttribute('max', '1000000');
-price.setAttribute('pattern', '[0-9]');
-
 titleInput.addEventListener('invalid', function () {
   if (titleInput.validity.valueMissing) {
     titleInput.setCustomValidity('Заголовок - обязательное поле');
@@ -370,18 +350,16 @@ pinMain.addEventListener('click', function (evt) {
   evt.stopImmediatePropagation();
 });
 
-var openCard = function (evt) {
+var openCard = function (evt, avatar) {
   if (evt.target) {
-    var pinsAvatar = evt.target.getAttribute('src');
     for (var i = 0; i < pinsObject.length; i++) {
       var cardsAvatar = pinsObject[i].author.avatar;
-      if (pinsAvatar === cardsAvatar) {
+      if (avatar === cardsAvatar) {
         getCardElement(pinsObject[i]);
         map.insertBefore(cardFragment, mapFiltersContainer);
 
         var popupClose = document.querySelector('.popup__close');
         var popup = document.querySelector('.popup');
-        popupClose.setAttribute('tabindex', '0');
 
         popupClose.addEventListener('click', function () {
           popup.remove();
@@ -404,11 +382,13 @@ var openCard = function (evt) {
 };
 
 pinListElement.addEventListener('click', function (evt) {
-  openCard(evt);
+  var pinsAvatar = evt.target.getAttribute('src');
+  openCard(evt, pinsAvatar);
 });
 
 pinListElement.addEventListener('keydown', function (evt) {
+  var pinsAvatar = evt.target.firstChild.getAttribute('src');
   if (evt.key === ENTER_KEY) {
-    openCard(evt);
+    openCard(evt, pinsAvatar);
   }
 });
