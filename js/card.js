@@ -44,27 +44,18 @@ var getPhotos = function (photoArr, cartsArr) {
 // баг, нужно вызывать для должен дергаться при клике на пин
 getPhotos(pinsObject, cardElement);
 
-pinListElement.addEventListener('click', function (evt) {
-  var pinsAvatar = evt.target.getAttribute('src');
-  openCard(evt, pinsAvatar);
-});
-
-pinListElement.addEventListener('keydown', function (evt) {
-  if (evt.key === ENTER_KEY) {
-    var pinsAvatar = evt.target.firstChild.getAttribute('src');
-    openCard(evt, pinsAvatar);
-  }
-});
-
 var openCard = function (evt, avatar) {
   if (evt.target) {
     for (var i = 0; i < pinsObject.length; i++) {
       var cardsAvatar = pinsObject[i].author.avatar;
       if (avatar === cardsAvatar) {
 
-       getCardElement(window.pins[i]);
+        getCardElement(window.pins[i]);
 
-        map.insertBefore(cardFragment, mapFiltersContainer);
+        //window.test.cardFragment;
+       // pinListElement.appendChild(window.pin.fragment);
+
+        map.insertBefore(window.test.cardFragment, mapFiltersContainer);
 
         var popupClose = document.querySelector('.popup__close');
         var popup = document.querySelector('.popup');

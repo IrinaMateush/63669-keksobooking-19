@@ -94,7 +94,7 @@ var getRandomPins = function (max) {
   return window.pins;
 };
 
-var pinsObject = getRandomPins(COUNT);
+window.pinsObject = getRandomPins(COUNT);
 
 var addressInput = document.querySelector('#address');
 
